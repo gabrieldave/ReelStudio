@@ -1,0 +1,1378 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#07090f" />
+  <title>Generador Integral de Prompts Pro v4</title>
+  <style>
+    :root{
+      --bg:#07090f;
+      --panel:#101827;
+      --panel2:#162236;
+      --text:#eef4ff;
+      --muted:#98a8bc;
+      --gold:#f6c75f;
+      --green:#37f28c;
+      --cyan:#63d8ff;
+      --red:#ff6b6b;
+      --line:rgba(255,255,255,.115);
+      --shadow:0 24px 70px rgba(0,0,0,.48);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(99,216,255,.16), transparent 30%),
+        radial-gradient(circle at 85% 0%, rgba(246,199,95,.17), transparent 32%),
+        radial-gradient(circle at 50% 100%, rgba(55,242,140,.09), transparent 35%),
+        var(--bg);
+      min-height:100vh;
+    }
+    .app{width:min(1280px,100%);margin:auto;padding:20px}
+    header{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:18px;
+      padding:20px 0 16px;
+    }
+    .brand{display:flex;gap:14px;align-items:center}
+    .logo{
+      width:56px;height:56px;border-radius:18px;
+      background:linear-gradient(135deg,var(--gold),#8a641f 55%,#182235);
+      display:grid;place-items:center;color:#080b10;font-weight:1000;
+      box-shadow:0 18px 38px rgba(246,199,95,.24);
+      letter-spacing:-1px;
+    }
+    h1{font-size:clamp(24px,4vw,44px);line-height:1;margin:0}
+    .subtitle{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.45}
+    .pill{border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:999px;padding:10px 14px;color:#dfe9f7;font-size:12px;white-space:nowrap}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+    .card{
+      background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card h2{font-size:19px;margin:0;padding:18px 18px 0}
+    .hint{color:var(--muted);font-size:13px;line-height:1.45;margin:6px 18px 16px}
+    .form{padding:0 18px 18px}
+    label{display:block;margin:14px 0 7px;font-weight:850;font-size:13px;color:#dce8fa}
+    input,select,textarea{
+      width:100%;
+      background:rgba(5,8,14,.78);
+      border:1px solid rgba(255,255,255,.13);
+      border-radius:14px;
+      padding:13px 14px;
+      color:var(--text);
+      font-size:14px;
+      outline:none;
+    }
+    textarea{min-height:92px;resize:vertical}
+    input:focus,select:focus,textarea:focus{
+      border-color:rgba(246,199,95,.75);
+      box-shadow:0 0 0 4px rgba(246,199,95,.10);
+    }
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    .module{
+      margin-top:16px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:rgba(255,255,255,.035);
+      padding:14px;
+    }
+    .moduleTitle{
+      display:flex;align-items:center;gap:10px;
+      font-weight:1000;
+      color:#fff;
+      margin-bottom:4px;
+    }
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 18px rgba(246,199,95,.7)}
+    .mini{color:var(--muted);font-size:12px;line-height:1.45;margin:0 0 10px}
+    .checks{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+    .check{
+      display:flex;gap:9px;align-items:center;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:11px 12px;
+      background:rgba(255,255,255,.035);
+      color:var(--muted);
+      font-size:13px;
+    }
+    .check input{width:auto}
+    .actions{
+      display:flex;flex-wrap:wrap;gap:10px;padding:18px;border-top:1px solid var(--line);
+      background:rgba(255,255,255,.025);
+    }
+    button{
+      border:0;border-radius:14px;padding:12px 15px;font-weight:1000;cursor:pointer;
+      color:#091014;background:var(--gold);
+      box-shadow:0 10px 24px rgba(246,199,95,.18);
+    }
+    button.green{background:var(--green)}
+    button.cyan{background:var(--cyan)}
+    button.secondary{background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line);box-shadow:none}
+    button.red{background:rgba(255,107,107,.16);color:#ffd7d7;border:1px solid rgba(255,107,107,.25);box-shadow:none}
+    .notice{
+      margin:18px;
+      border:1px solid rgba(99,216,255,.18);
+      background:rgba(99,216,255,.075);
+      color:#d7f6ff;
+      padding:13px 14px;
+      border-radius:16px;
+      font-size:13px;
+      line-height:1.5;
+    }
+    .outputWrap{padding:18px}
+    #output{
+      min-height:720px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+      line-height:1.5;
+      white-space:pre-wrap;
+    }
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 18px 0}
+    .chip{
+      border:1px solid rgba(246,199,95,.25);
+      background:rgba(246,199,95,.08);
+      color:#ffe2a3;
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:12px;
+      font-weight:900;
+    }
+    details{
+      margin:14px 18px 18px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:rgba(255,255,255,.035);
+      padding:13px 14px;
+    }
+    summary{cursor:pointer;font-weight:1000;color:#fff}
+    details p, details li{color:var(--muted);font-size:13px;line-height:1.5}
+    .footer{color:var(--muted);text-align:center;margin:18px 0 6px;font-size:12px}
+    .hidden{display:none!important}
+    @media(max-width:980px){
+      .grid{grid-template-columns:1fr}
+      header{flex-direction:column}
+      .two,.three{grid-template-columns:1fr}
+      .checks{grid-template-columns:1fr}
+      #output{min-height:460px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo">AI</div>
+        <div>
+          <h1>Generador Integral de Prompts Pro v4</h1>
+          <p class="subtitle">Analiza primero con ChatGPT y, al final, te da el prompt exacto para generar las imágenes una por una.</p>
+        </div>
+      </div>
+      <div class="pill">Carrusel · Flyer · Campaña · Google Flow · Avatar</div>
+    </header>
+
+    <main class="grid">
+      <section class="card">
+        <h2>Llena los datos</h2>
+        <p class="hint">Elige el tipo de pieza y completa solo lo necesario. Esta versión siempre trabaja así: 1) análisis con ChatGPT, 2) al final te entrega el prompt listo para generar las imágenes.</p>
+
+        <div class="form">
+          <div class="two">
+            <div>
+              <label>Tipo de contenido</label>
+              <select id="tipo" onchange="toggleModules()">
+                <option value="carrusel">Carrusel con imágenes independientes</option>
+                <option value="reel">Reel para Google Flow con avatar</option>
+                <option value="flyer">Post único / flyer publicitario</option>
+                <option value="campana">Campaña completa</option>
+              </select>
+            </div>
+            <div>
+              <label>Flujo de trabajo</label>
+              <input id="salida" value="Análisis con ChatGPT + prompt final para generar imágenes" readonly />
+            </div>
+          </div>
+
+          <div class="three">
+            <div>
+              <label>Formato visual</label>
+              <select id="formato">
+                <option>1:1 cuadrado para Instagram/Facebook</option>
+                <option>9:16 vertical para Reels, Stories, Shorts y TikTok</option>
+                <option>4:5 vertical para Instagram Feed</option>
+                <option>16:9 horizontal para YouTube / presentación</option>
+              </select>
+            </div>
+            <div>
+              <label>Cantidad de slides / escenas</label>
+              <input id="cantidad" type="number" min="1" max="12" value="5" />
+            </div>
+            <div>
+              <label>Duración si es Reel</label>
+              <select id="duracion">
+                <option>15 segundos</option>
+                <option selected>30 segundos</option>
+                <option>45 segundos</option>
+                <option>60 segundos</option>
+                <option>90 segundos</option>
+              </select>
+            </div>
+          </div>
+
+          <label>Tema</label>
+          <input id="tema" placeholder="Ej. trading, restaurante, bienes raíces, oración, curso, app, producto, evento..." />
+
+          <div class="two">
+            <div>
+              <label>Objetivo</label>
+              <select id="objetivo">
+                <option>Generar mensajes por DM</option>
+                <option>Vender un producto o servicio</option>
+                <option>Educar y dar valor</option>
+                <option>Promocionar una oferta</option>
+                <option>Mostrar prueba social</option>
+                <option>Conseguir reservas o citas</option>
+                <option>Construir marca personal</option>
+                <option>Hacer branding</option>
+              </select>
+            </div>
+            <div>
+              <label>Audiencia</label>
+              <input id="audiencia" placeholder="Ej. traders, emprendedores, familias, mamás, negocios locales..." />
+            </div>
+          </div>
+
+          <div class="two">
+            <div>
+              <label>Marca / negocio</label>
+              <input id="marca" placeholder="Ej. Quinta Esencia Evolution, La Curva 2, Filosterra..." />
+            </div>
+            <div>
+              <label>CTA principal</label>
+              <input id="cta" placeholder="Ej. Escríbeme por DM, reserva por WhatsApp, pide informes..." />
+            </div>
+          </div>
+
+          <div class="two">
+            <div>
+              <label>Tono</label>
+              <select id="tono">
+                <option>Profesional y persuasivo</option>
+                <option>Premium y elegante</option>
+                <option>Cercano y humano</option>
+                <option>Divertido y creativo</option>
+                <option>Educativo y claro</option>
+                <option>Urgente y vendedor</option>
+                <option>Espiritual y emotivo</option>
+              </select>
+            </div>
+            <div>
+              <label>Estilo visual</label>
+              <select id="estilo">
+                <option>Premium oscuro con dorado y detalles modernos</option>
+                <option>Lujo oscuro con dorado, verde neón y datos visuales</option>
+                <option>Minimalista limpio y elegante</option>
+                <option>Colorido, dinámico y juvenil</option>
+                <option>Corporativo profesional</option>
+                <option>Restaurante apetitoso, cálido y llamativo</option>
+                <option>Tecnológico futurista con IA, neón y pantallas</option>
+                <option>Emotivo, espiritual, luz suave y música inspiradora</option>
+              </select>
+            </div>
+          </div>
+
+          <label>Colores de marca</label>
+          <input id="colores" placeholder="Ej. negro, dorado, verde neón / rojo, amarillo, negro / azul y blanco..." />
+
+          <label>Mensaje central</label>
+          <textarea id="mensaje" placeholder="Ej. No se trata de suerte, se trata de estructura, gestión y disciplina."></textarea>
+
+          <label>Datos importantes que deben aparecer</label>
+          <textarea id="datos" placeholder="Ej. precio, ubicación, promoción, fechas, resultados, beneficios, WhatsApp, horarios, oferta..."></textarea>
+
+          <label>Restricciones / cosas que NO debe mostrar</label>
+          <textarea id="restricciones" placeholder="Ej. no mostrar datos privados, no inventar resultados, no saturar de texto, no mostrar depósitos..."></textarea>
+
+          <div id="visualModule" class="module">
+            <div class="moduleTitle"><span class="dot"></span> Opciones para carrusel / flyer / campaña</div>
+            <p class="mini">Esto controla las imágenes independientes, flyers o piezas estáticas.</p>
+            <div class="two">
+              <div>
+                <label>Tipo de diseño</label>
+                <select id="tipoDiseno">
+                  <option>Publicidad premium de alto impacto</option>
+                  <option>Infografía profesional con datos</option>
+                  <option>Flyer promocional comercial</option>
+                  <option>Carrusel educativo</option>
+                  <option>Prueba social / resultados</option>
+                  <option>Branding aspiracional</option>
+                </select>
+              </div>
+              <div>
+                <label>Elementos visuales</label>
+                <input id="elementos" placeholder="Ej. gráficas, íconos, fotos, oro, comida, terrenos, mockups, flechas..." />
+              </div>
+            </div>
+          </div>
+
+          <div id="flowModule" class="module hidden">
+            <div class="moduleTitle"><span class="dot"></span> Opciones para Google Flow / Reels</div>
+            <p class="mini">Usa esto para crear escenas con avatar, podcast, B-roll y prompts por clip.</p>
+
+            <div class="two">
+              <div>
+                <label>Tipo de Reel</label>
+                <select id="tipoReel">
+                  <option>Avatar hablando a cámara</option>
+                  <option>Podcast con avatar o presentador</option>
+                  <option>Entrevista estilo podcast</option>
+                  <option>Video narrado con B-roll</option>
+                  <option>Testimonio / caso de éxito</option>
+                  <option>Producto o servicio explicado</option>
+                  <option>Historia cinematográfica corta</option>
+                  <option>Antes y después</option>
+                </select>
+              </div>
+              <div>
+                <label>Escenario principal</label>
+                <select id="escenario">
+                  <option>Estudio de podcast premium</option>
+                  <option>Oficina moderna profesional</option>
+                  <option>Set oscuro premium con luces doradas</option>
+                  <option>Restaurante con ambiente cálido</option>
+                  <option>Estudio tecnológico futurista</option>
+                  <option>Fondo de trading con pantallas y gráficas</option>
+                  <option>Exterior urbano cinematográfico</option>
+                  <option>Escenario espiritual / iglesia / luz cálida</option>
+                  <option>Escenario personalizado</option>
+                </select>
+              </div>
+            </div>
+
+            <label>Avatar / personaje</label>
+            <textarea id="avatar" placeholder="Ej. usar @me como avatar principal, hombre latino, camisa negra, sentado en podcast, hablando con seguridad a cámara."></textarea>
+
+            <label>B-roll / recursos visuales</label>
+            <textarea id="broll" placeholder="Ej. pantallas de trading, comida, terrenos, producto, manos trabajando, logo, capturas, testimonios..."></textarea>
+          </div>
+
+          <div class="checks">
+            <label class="check"><input type="checkbox" id="hooking" checked /> Hook fuerte</label>
+            <label class="check"><input type="checkbox" id="copy" checked /> Descripción del post</label>
+            <label class="check"><input type="checkbox" id="hashtags" checked /> Hashtags</label>
+            <label class="check"><input type="checkbox" id="subtitulos" checked /> Subtítulos si es Reel</label>
+            <label class="check"><input type="checkbox" id="sonido" checked /> Música/sonido si es Reel</label>
+            <label class="check"><input type="checkbox" id="legal" /> Disclaimer / nota legal</label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button onclick="generar()">Generar prompt</button>
+          <button class="green" onclick="copiar()">Copiar análisis</button>
+          <button class="cyan" onclick="copiar2()">Copiar prompt final</button>
+          <button class="cyan" onclick="guardar()">Guardar datos</button>
+          <button class="secondary" onclick="cargar()">Cargar datos</button>
+          <button class="secondary" onclick="descargar()">Descargar .txt</button>
+          <button class="secondary" onclick="ejemploCarrusel()">Ejemplo carrusel</button>
+          <button class="secondary" onclick="ejemploReel()">Ejemplo Reel Flow</button>
+          <button class="secondary" onclick="ejemploFlyer()">Ejemplo flyer</button>
+          <button class="red" onclick="limpiar()">Limpiar</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Prompt generado</h2>
+        <p class="hint">Cópialo y pégalo en ChatGPT. Si elegiste salida directa, úsalo como base para generar imágenes o clips.</p>
+
+        <div class="chips">
+          <span class="chip">Análisis con ChatGPT</span>
+          <span class="chip">Prompt final para imágenes</span>
+          <span class="chip">Campañas</span>
+          <span class="chip">Reels Google Flow</span>
+          <span class="chip">Avatares</span>
+        </div>
+
+        <div class="notice">
+          <b>Flujo recomendado:</b> llena los campos → genera el prompt de análisis → pégalo en ChatGPT → revisa la respuesta → luego copia el prompt final para generar imágenes y pégalo debajo.
+        </div>
+
+        <details>
+          <summary>Estructuras que genera</summary>
+          <ul>
+            <li><b>Carrusel:</b> primero analiza y estructura el contenido. Después copias el prompt final para que ChatGPT genere el Slide 1, luego Slide 2, etc., como imágenes separadas.</li>
+            <li><b>Flyer:</b> encabezado, oferta, beneficio, datos clave y CTA.</li>
+            <li><b>Reel Google Flow:</b> escenas por segundos, avatar, cámara, diálogo, subtítulos, B-roll y audio.</li>
+            <li><b>Campaña:</b> carrusel + Reel + flyer + copy + hashtags + CTAs.</li>
+          </ul>
+        </details>
+
+        <div class="outputWrap">
+          <label style="margin-top:0">1) Prompt de análisis para ChatGPT</label>
+          <textarea id="output" readonly placeholder="Aquí aparecerá tu prompt de análisis..."></textarea>
+        </div>
+        <div class="outputWrap" style="padding-top:0">
+          <label style="margin-top:0">2) Prompt final para generar imágenes</label>
+          <textarea id="output2" readonly placeholder="Aquí aparecerá el prompt que debes copiar después del análisis..."></textarea>
+        </div>
+      </section>
+    </main>
+
+    <p class="footer">Generador integral HTML/PWA v4: primero analiza con ChatGPT y después te da el prompt final para generar imágenes.</p>
+  </div>
+
+<script>
+function val(id){return document.getElementById(id).value.trim();}
+function checked(id){return document.getElementById(id).checked;}
+
+function toggleModules(){
+  const tipo = val('tipo');
+  document.getElementById('flowModule').classList.toggle('hidden', tipo !== 'reel' && tipo !== 'campana');
+  document.getElementById('visualModule').classList.toggle('hidden', tipo === 'reel');
+  if(tipo === 'reel'){
+    document.getElementById('formato').value = '9:16 vertical para Reels, Stories, Shorts y TikTok';
+  }
+}
+toggleModules();
+
+function tiempoEscenas(duracion, cantidad){
+  const n = Math.max(1, parseInt(cantidad || "5", 10));
+  const total = parseInt((duracion || "30").match(/\d+/)?.[0] || "30", 10);
+  let partes = [];
+  for(let i=1;i<=n;i++){
+    const start = Math.round((i-1)*total/n);
+    const end = Math.round(i*total/n);
+    partes.push(`Escena ${i}: ${start}s-${end}s`);
+  }
+  return partes.join("\n");
+}
+
+function baseData(){
+  return {
+    tipo: val('tipo'),
+    salida: 'chatgpt',
+    formato: val('formato'),
+    cantidad: val('cantidad') || '5',
+    duracion: val('duracion'),
+    tema: val('tema') || '[TEMA]',
+    objetivo: val('objetivo'),
+    audiencia: val('audiencia') || '[AUDIENCIA]',
+    marca: val('marca') || '[MARCA O NEGOCIO]',
+    cta: val('cta') || 'Escríbeme por DM para más información',
+    tono: val('tono'),
+    estilo: val('estilo'),
+    colores: val('colores') || 'sugiere una paleta profesional según el tema',
+    mensaje: val('mensaje') || '[MENSAJE CENTRAL]',
+    datos: val('datos') || '[DATOS IMPORTANTES]',
+    restricciones: val('restricciones') || 'No inventar datos. No mostrar información privada. No saturar de texto.',
+    tipoDiseno: val('tipoDiseno'),
+    elementos: val('elementos') || '[ELEMENTOS VISUALES]',
+    tipoReel: val('tipoReel'),
+    escenario: val('escenario'),
+    avatar: val('avatar') || 'Usar @me o el avatar indicado por el usuario, con descripción clara de apariencia, ropa, actitud y energía.',
+    broll: val('broll') || '[B-ROLL O RECURSOS VISUALES]'
+  };
+}
+
+function flags(){
+  return [
+    checked('hooking') ? '- Usar hooking fuerte para detener el scroll.' : '',
+    checked('copy') ? '- Incluir descripción lista para Instagram/Facebook.' : '',
+    checked('hashtags') ? '- Incluir hashtags recomendados.' : '',
+    checked('subtitulos') ? '- Si es video, incluir subtítulos y texto en pantalla.' : '',
+    checked('sonido') ? '- Si es video, incluir música, ambiente y efectos sugeridos.' : '',
+    checked('legal') ? '- Incluir disclaimer o nota legal breve si el tema lo requiere.' : ''
+  ].filter(Boolean).join("\n");
+}
+
+
+function promptImagenUnaCarrusel(d){
+  return `Actúa como experto en marketing digital, copywriting, dirección de arte y diseño de carruseles publicitarios.
+
+QUIERO GENERAR IMÁGENES, NO QUIERO SOLO TEXTO.
+
+Crea un carrusel profesional de ${d.cantidad} slides, pero empieza generando ÚNICAMENTE la imagen del SLIDE 1/${d.cantidad}.
+
+IMPORTANTE ABSOLUTO:
+- Genera solo una imagen: SLIDE 1/${d.cantidad}.
+- No generes todo el carrusel de golpe.
+- No hagas collage.
+- No hagas grid.
+- No hagas mosaico.
+- No hagas mockup.
+- No hagas una imagen con varias diapositivas.
+- No dividas la imagen en varias secciones tipo panel múltiple.
+- No me des estructura, no me des explicación, no me des hashtags todavía.
+- Genera directamente la imagen 1:1 lista para publicar.
+
+TEMA:
+${d.tema}
+
+MARCA:
+${d.marca}
+
+OBJETIVO:
+${d.objetivo}
+
+AUDIENCIA:
+${d.audiencia}
+
+FORMATO:
+${d.formato}
+
+TONO:
+${d.tono}
+
+ESTILO VISUAL:
+${d.estilo}
+
+TIPO DE DISEÑO:
+${d.tipoDiseno}
+
+COLORES:
+${d.colores}
+
+MENSAJE CENTRAL:
+${d.mensaje}
+
+DATOS IMPORTANTES:
+${d.datos}
+
+ELEMENTOS VISUALES:
+${d.elementos}
+
+CTA:
+${d.cta}
+
+RESTRICCIONES:
+${d.restricciones}
+
+SLIDE 1/${d.cantidad}:
+Crea un hook fuerte y visual para detener el scroll.
+Debe ser profesional, claro, moderno y publicitario.
+Debe tener poco texto, título grande, buena jerarquía visual y composición limpia.
+Debe respetar la marca y colores indicados.
+
+Después de generar el Slide 1, espera a que yo diga:
+SIGUIENTE
+
+Cuando yo diga SIGUIENTE, genera solo el Slide 2/${d.cantidad}, también como imagen independiente.`;
+}
+
+function promptImagenUnaFlyer(d){
+  return `Actúa como experto en publicidad, copywriting y diseño visual para redes sociales.
+
+QUIERO GENERAR UNA IMAGEN, NO QUIERO SOLO TEXTO.
+
+Genera directamente un flyer/post único en formato ${d.formato}.
+
+IMPORTANTE:
+- Genera solo una imagen.
+- No hagas collage.
+- No hagas grid.
+- No hagas mockup.
+- No dividas la imagen en varias secciones.
+- No me des estructura ni explicación.
+- Genera la imagen lista para publicar.
+
+TEMA:
+${d.tema}
+
+MARCA:
+${d.marca}
+
+OBJETIVO:
+${d.objetivo}
+
+AUDIENCIA:
+${d.audiencia}
+
+TONO:
+${d.tono}
+
+ESTILO VISUAL:
+${d.estilo}
+
+COLORES:
+${d.colores}
+
+MENSAJE CENTRAL:
+${d.mensaje}
+
+DATOS IMPORTANTES:
+${d.datos}
+
+ELEMENTOS VISUALES:
+${d.elementos}
+
+CTA:
+${d.cta}
+
+RESTRICCIONES:
+${d.restricciones}
+
+Diseña una pieza publicitaria profesional, clara, moderna y vendedora, con título grande, beneficio visible y CTA.`;
+}
+
+
+
+function promptFinalImagenesCarrusel(d){
+  return `Ahora NO me des más análisis, estructura, hashtags ni explicación.
+
+Con base en el análisis y estructura que acabas de hacer, genera únicamente la imagen del SLIDE 1/${d.cantidad} del carrusel.
+
+IMPORTANTE ABSOLUTO:
+- Genera solo una imagen: SLIDE 1/${d.cantidad}.
+- No generes todo el carrusel de golpe.
+- No hagas collage.
+- No hagas grid.
+- No hagas mockup.
+- No hagas mosaico.
+- No hagas panel múltiple.
+- No muestres otras diapositivas dentro de la misma imagen.
+- Haz una sola imagen independiente, lista para publicar.
+- Usa el estilo, marca, colores, tono y contenido ya definidos en el análisis anterior.
+
+TEMA:
+${d.tema}
+
+MARCA:
+${d.marca}
+
+FORMATO:
+${d.formato}
+
+TONO:
+${d.tono}
+
+ESTILO VISUAL:
+${d.estilo}
+
+COLORES:
+${d.colores}
+
+CTA:
+${d.cta}
+
+RESTRICCIONES:
+${d.restricciones}
+
+Cuando termines de generar el Slide 1/${d.cantidad}, espera a que yo escriba:
+SIGUIENTE
+
+Y entonces generarás solo el Slide 2/${d.cantidad}, también como imagen independiente, sin collage y sin mostrar otras diapositivas.`;
+}
+
+function promptFinalImagenesFlyer(d){
+  return `Ahora NO me des más análisis, estructura, hashtags ni explicación.
+
+Con base en el análisis anterior, genera directamente la imagen final del flyer/post único.
+
+IMPORTANTE:
+- Genera solo una imagen final.
+- No hagas collage.
+- No hagas grid.
+- No hagas mockup.
+- No dividas la imagen en paneles.
+- Haz una pieza limpia, profesional y lista para publicar.
+
+TEMA:
+${d.tema}
+
+MARCA:
+${d.marca}
+
+FORMATO:
+${d.formato}
+
+TONO:
+${d.tono}
+
+ESTILO VISUAL:
+${d.estilo}
+
+COLORES:
+${d.colores}
+
+CTA:
+${d.cta}
+
+RESTRICCIONES:
+${d.restricciones}`;
+}
+
+function promptFinalImagenesReel(d){
+  return `Ahora NO me des más análisis general.
+
+Con base en el guion y la estructura que acabas de hacer, genera únicamente la ESCENA 1/${d.cantidad} del Reel en formato ${d.formato}.
+
+IMPORTANTE ABSOLUTO:
+- Genera solo la escena 1/${d.cantidad}.
+- No generes el Reel completo de una vez.
+- Mantén el mismo avatar, escenario, estilo y tono definidos en el análisis anterior.
+- Si corresponde, usa @me o el avatar indicado.
+- No cambies continuidad visual.
+
+Cuando termines la escena 1/${d.cantidad}, espera a que yo escriba:
+SIGUIENTE
+
+Y entonces generarás solo la escena 2/${d.cantidad}.`;
+}
+
+function promptFinalImagenesCampana(d){
+  return `Ahora NO me des más análisis general.
+
+Con base en la campaña que acabas de estructurar, vamos a generar los materiales uno por uno.
+
+Empieza generando únicamente el primer activo principal:
+- Si el primer activo es carrusel, genera solo el SLIDE 1/${d.cantidad}.
+- Si es flyer, genera solo la imagen final del flyer.
+- Si es Reel, genera solo la ESCENA 1/${d.cantidad}.
+
+IMPORTANTE:
+- Un solo activo a la vez.
+- No collage.
+- No grid.
+- No mockup.
+- No panel múltiple.
+- Mantén el estilo visual, la marca y el tono del análisis anterior.
+
+Cuando termines, espera a que yo escriba:
+SIGUIENTE`;
+}
+
+function promptCarrusel(d){
+  
+    return `Crea ${d.cantidad} prompts SEPARADOS para generar un carrusel en formato ${d.formato}.
+
+IMPORTANTE ABSOLUTO:
+No quiero collage.
+No quiero una sola imagen con varias diapositivas.
+No quiero grid.
+No quiero mockup de carrusel.
+No quiero paneles múltiples en una misma imagen.
+Quiero ${d.cantidad} imágenes independientes, generadas una por una.
+Cada prompt debe servir para crear SOLO un slide.
+Cada slide debe decir claramente: "Generar únicamente esta imagen, no incluir otros slides".
+
+Tema: ${d.tema}
+Marca: ${d.marca}
+Objetivo: ${d.objetivo}
+Audiencia: ${d.audiencia}
+Tono: ${d.tono}
+Estilo visual: ${d.estilo}
+Colores: ${d.colores}
+Mensaje central: ${d.mensaje}
+Datos importantes: ${d.datos}
+Elementos visuales: ${d.elementos}
+CTA: ${d.cta}
+Restricciones: ${d.restricciones}
+
+Estructura:
+Slide 1: hook fuerte.
+Slides intermedios: desarrollo con valor, beneficios, datos, pasos o prueba social.
+Último slide: cierre con CTA.
+
+Entrega la salida así:
+
+PROMPT PARA IMAGEN 1/${d.cantidad}
+Texto dentro de la imagen:
+[...]
+
+Prompt visual:
+Generar únicamente la imagen 1/${d.cantidad} del carrusel, en formato ${d.formato}. No crear collage, no crear grid, no mostrar otras diapositivas, no dividir la imagen en secciones múltiples. [Prompt visual completo...]
+
+PROMPT PARA IMAGEN 2/${d.cantidad}
+Texto dentro de la imagen:
+[...]
+
+Prompt visual:
+Generar únicamente la imagen 2/${d.cantidad} del carrusel, en formato ${d.formato}. No crear collage, no crear grid, no mostrar otras diapositivas, no dividir la imagen en secciones múltiples. [Prompt visual completo...]
+
+Repetir hasta completar ${d.cantidad} imágenes.
+
+Reglas:
+- Cada imagen debe ser una pieza individual y lista para publicar.
+- Una sola composición por imagen.
+- No meter varias páginas dentro de la misma imagen.
+- No usar diseño tipo mosaico.
+- No saturar texto.
+- Mantener estética coherente en todo el carrusel.
+- No inventar datos.`;
+  }
+
+  return `Actúa como experto en marketing digital, copywriting, dirección de arte y diseño de carruseles publicitarios.
+
+Crea un carrusel profesional con ${d.cantidad} imágenes independientes.
+
+IMPORTANTE ABSOLUTO:
+El carrusel NO debe generarse como collage.
+NO debe generarse como una sola imagen con varias diapositivas.
+NO debe generarse como grid, mosaico, mockup o panel múltiple.
+Cada slide debe ser una imagen separada.
+Cuando se generen las imágenes finales, deben generarse una por una:
+primero solo Slide 1, luego solo Slide 2, luego solo Slide 3, y así sucesivamente.
+
+TEMA:
+${d.tema}
+
+MARCA:
+${d.marca}
+
+OBJETIVO:
+${d.objetivo}
+
+AUDIENCIA:
+${d.audiencia}
+
+FORMATO:
+${d.formato}
+
+TONO:
+${d.tono}
+
+ESTILO VISUAL:
+${d.estilo}
+
+TIPO DE DISEÑO:
+${d.tipoDiseno}
+
+COLORES:
+${d.colores}
+
+MENSAJE CENTRAL:
+${d.mensaje}
+
+DATOS IMPORTANTES:
+${d.datos}
+
+ELEMENTOS VISUALES:
+${d.elementos}
+
+CTA:
+${d.cta}
+
+RESTRICCIONES:
+${d.restricciones}
+
+REGLAS:
+- Diseño profesional, moderno, limpio y publicitario.
+- Cada slide debe funcionar como imagen independiente.
+- Cada prompt de imagen debe incluir: "Generar únicamente este slide, no collage, no grid, no mostrar otros slides".
+- Texto breve, poderoso y fácil de leer en móvil.
+- Mantener coherencia visual entre todas las imágenes.
+- Incluir jerarquía clara: título grande, subtítulo y bloques visuales.
+${flags()}
+
+ENTREGA:
+1. Concepto creativo general.
+2. Estructura slide por slide.
+3. Texto exacto para cada slide.
+4. Idea visual para cada slide.
+5. Prompt específico para generar cada imagen independiente, separado por bloques:
+   - PROMPT PARA IMAGEN 1/${d.cantidad}
+   - PROMPT PARA IMAGEN 2/${d.cantidad}
+   - PROMPT PARA IMAGEN 3/${d.cantidad}
+   - etc.
+   Cada bloque debe decir claramente que se genera solo esa imagen, no un collage.
+6. Hook principal.
+7. 5 hooks alternativos.
+8. CTA principal y 3 CTAs alternativos.
+9. Descripción para Instagram/Facebook.
+10. Hashtags.
+11. Recomendaciones para hacerlo más vendedor y más viral.`;
+}
+
+function promptFlyer(d){
+  
+    return `Crea un prompt directo para generar un flyer/post único en formato ${d.formato}.
+
+Tema: ${d.tema}
+Marca: ${d.marca}
+Objetivo: ${d.objetivo}
+Audiencia: ${d.audiencia}
+Tono: ${d.tono}
+Estilo visual: ${d.estilo}
+Colores: ${d.colores}
+Mensaje central: ${d.mensaje}
+Datos importantes: ${d.datos}
+Elementos visuales: ${d.elementos}
+CTA: ${d.cta}
+Restricciones: ${d.restricciones}
+
+Entrega:
+- Texto principal del flyer.
+- Texto secundario.
+- CTA.
+- Prompt visual completo.
+- Composición.
+- Recomendación de copy para publicar.
+
+Reglas:
+- Diseño limpio, llamativo y comercial.
+- No saturar de texto.
+- Que se vea listo para redes sociales.`;
+  }
+
+  return `Actúa como experto en publicidad, copywriting y diseño visual para redes sociales.
+
+Crea un flyer/post único profesional en formato ${d.formato}.
+
+TEMA:
+${d.tema}
+
+MARCA:
+${d.marca}
+
+OBJETIVO:
+${d.objetivo}
+
+AUDIENCIA:
+${d.audiencia}
+
+TONO:
+${d.tono}
+
+ESTILO VISUAL:
+${d.estilo}
+
+COLORES:
+${d.colores}
+
+MENSAJE CENTRAL:
+${d.mensaje}
+
+DATOS IMPORTANTES:
+${d.datos}
+
+ELEMENTOS VISUALES:
+${d.elementos}
+
+CTA:
+${d.cta}
+
+RESTRICCIONES:
+${d.restricciones}
+
+REGLAS:
+- Debe ser una sola imagen poderosa, clara y vendedora.
+- Hook visible en grande.
+- Oferta o beneficio muy claro.
+- CTA directo.
+- Diseño profesional, limpio y atractivo.
+${flags()}
+
+ENTREGA:
+1. Concepto creativo.
+2. Texto exacto del flyer.
+3. Prompt visual completo para generar la imagen.
+4. Composición sugerida.
+5. Variantes de headline.
+6. Descripción para publicar.
+7. Hashtags.
+8. Recomendaciones para que convierta mejor.`;
+}
+
+function promptReel(d){
+  const tiempos = tiempoEscenas(d.duracion, d.cantidad);
+
+  
+    return `Crea ${d.cantidad} prompts directos para Google Flow/Veo para un Reel de ${d.duracion} en formato ${d.formato}.
+
+Tema: ${d.tema}
+Marca: ${d.marca}
+Objetivo: ${d.objetivo}
+Audiencia: ${d.audiencia}
+Tipo de Reel: ${d.tipoReel}
+Escenario: ${d.escenario}
+Avatar/personaje: ${d.avatar}
+Estilo visual: ${d.estilo}
+Tono: ${d.tono}
+Mensaje central: ${d.mensaje}
+Datos importantes: ${d.datos}
+B-roll/referencias: ${d.broll}
+CTA: ${d.cta}
+Restricciones: ${d.restricciones}
+
+Estructura de tiempo:
+${tiempos}
+
+Para cada escena entrega exactamente:
+
+ESCENA [NÚMERO] — [SEGUNDOS]
+Prompt para Google Flow:
+"[Prompt cinematográfico detallado. Debe incluir @avatar si aplica, sujeto, acción, entorno, iluminación, estilo visual, movimiento de cámara, encuadre, emoción, diálogo/audio y continuidad visual.]"
+
+Texto en pantalla:
+"[Texto corto para overlay]"
+
+Voz/diálogo:
+"[Frase breve que dirá el avatar o narrador]"
+
+Audio:
+"[Música o efecto sugerido]"
+
+Notas:
+"[Referencia visual, ingredient o continuidad]"
+
+Reglas:
+- Prompts breves pero completos.
+- Cada escena debe generarse por separado en Google Flow.
+- Mantener el mismo avatar, escenario, estilo y paleta.
+- No usar datos privados ni promesas absolutas.`;
+  }
+
+  return `Actúa como director creativo, guionista de Reels, experto en Google Flow/Veo, marketing digital y dirección de arte.
+
+Crea un Reel profesional adaptado para Google Flow.
+
+TEMA:
+${d.tema}
+
+MARCA:
+${d.marca}
+
+OBJETIVO:
+${d.objetivo}
+
+AUDIENCIA:
+${d.audiencia}
+
+DURACIÓN:
+${d.duracion}
+
+FORMATO:
+${d.formato}
+
+TIPO DE REEL:
+${d.tipoReel}
+
+ESCENARIO PRINCIPAL:
+${d.escenario}
+
+AVATAR / PERSONAJE:
+${d.avatar}
+
+ESTILO VISUAL:
+${d.estilo}
+
+TONO:
+${d.tono}
+
+MENSAJE CENTRAL:
+${d.mensaje}
+
+DATOS IMPORTANTES:
+${d.datos}
+
+B-ROLL / RECURSOS VISUALES:
+${d.broll}
+
+CTA:
+${d.cta}
+
+RESTRICCIONES:
+${d.restricciones}
+
+ESTRUCTURA DE TIEMPO:
+${tiempos}
+
+REGLAS PARA GOOGLE FLOW:
+- Crear prompts por escena, no un solo prompt largo.
+- Cada escena debe tener sujeto, acción, entorno, iluminación, estilo, encuadre, movimiento de cámara, emoción, audio/diálogo y texto en pantalla.
+- Si se usa avatar, escribirlo como referencia usando @me o el nombre del avatar indicado.
+- Si se usan imágenes, logos, capturas o productos, indicarlos como ingredients/referencias visuales.
+- Mantener continuidad visual entre escenas.
+- Evitar texto excesivo dentro del video.
+${flags()}
+
+ENTREGA:
+1. Concepto creativo del Reel.
+2. Estructura exacta por segundos.
+3. Guion hablado completo.
+4. Texto en pantalla por escena.
+5. Prompt para Google Flow de cada escena.
+6. Instrucciones de cámara por escena.
+7. Música, efectos y ambiente sugerido.
+8. B-roll recomendado.
+9. 5 hooks alternativos.
+10. CTA principal y 3 CTAs alternativos.
+11. Descripción para Instagram/Facebook.
+12. Hashtags.
+13. Recomendación de edición final.`;
+}
+
+function promptCampana(d){
+  return `Actúa como estratega de marketing digital, copywriter, director creativo, diseñador de carruseles, creador de Reels para Google Flow y experto en publicidad para redes sociales.
+
+Crea una campaña completa para redes.
+
+TEMA:
+${d.tema}
+
+MARCA:
+${d.marca}
+
+OBJETIVO:
+${d.objetivo}
+
+AUDIENCIA:
+${d.audiencia}
+
+TONO:
+${d.tono}
+
+ESTILO VISUAL:
+${d.estilo}
+
+COLORES:
+${d.colores}
+
+MENSAJE CENTRAL:
+${d.mensaje}
+
+DATOS IMPORTANTES:
+${d.datos}
+
+ELEMENTOS VISUALES:
+${d.elementos}
+
+REEL / GOOGLE FLOW:
+Tipo de Reel: ${d.tipoReel}
+Duración: ${d.duracion}
+Escenario: ${d.escenario}
+Avatar/personaje: ${d.avatar}
+B-roll: ${d.broll}
+
+CTA:
+${d.cta}
+
+RESTRICCIONES:
+${d.restricciones}
+
+REGLAS:
+- Mantener una identidad visual coherente en todo.
+- No inventar datos.
+- No saturar de texto.
+- Todo debe estar listo para usarse en Instagram/Facebook/TikTok.
+${flags()}
+
+ENTREGA:
+1. Concepto de campaña.
+2. Carrusel de ${d.cantidad} imágenes independientes:
+   - texto por slide
+   - idea visual por slide
+   - prompt de imagen independiente por slide
+   - cada prompt debe indicar: generar solo este slide, no collage, no grid, no mockup, no panel múltiple
+3. Flyer/post único:
+   - texto exacto
+   - prompt visual
+4. Reel para Google Flow:
+   - estructura por segundos
+   - guion hablado
+   - texto en pantalla
+   - prompt por escena
+   - cámara, audio y B-roll
+5. Descripción para Instagram/Facebook.
+6. 10 hooks alternativos.
+7. CTAs para DM, WhatsApp y comentarios.
+8. Hashtags.
+9. Calendario sugerido de publicación.
+10. Recomendaciones para mejorar conversión.`;
+}
+
+function generar(){
+  const d = baseData();
+  let prompt = '';
+  let prompt2 = '';
+  if(d.tipo === 'carrusel'){
+    prompt = promptCarrusel(d);
+    prompt2 = promptFinalImagenesCarrusel(d);
+  }
+  if(d.tipo === 'flyer'){
+    prompt = promptFlyer(d);
+    prompt2 = promptFinalImagenesFlyer(d);
+  }
+  if(d.tipo === 'reel'){
+    prompt = promptReel(d);
+    prompt2 = promptFinalImagenesReel(d);
+  }
+  if(d.tipo === 'campana'){
+    prompt = promptCampana(d);
+    prompt2 = promptFinalImagenesCampana(d);
+  }
+  document.getElementById('output').value = prompt;
+  document.getElementById('output2').value = prompt2;
+}
+
+async function copiar(){
+  const out = document.getElementById('output');
+  if(!out.value.trim()) generar();
+  try{
+    await navigator.clipboard.writeText(out.value);
+    alert('Prompt de análisis copiado.');
+  }catch(e){
+    out.select();document.execCommand('copy');alert('Prompt de análisis copiado.');
+  }
+}
+
+async function copiar2(){
+  const out = document.getElementById('output2');
+  if(!out.value.trim()) generar();
+  try{
+    await navigator.clipboard.writeText(out.value);
+    alert('Prompt final copiado.');
+  }catch(e){
+    out.select();document.execCommand('copy');alert('Prompt final copiado.');
+  }
+}
+
+function descargar(){
+  const out = document.getElementById('output');
+  const out2 = document.getElementById('output2');
+  if(!out.value.trim()) generar();
+  const blob = new Blob([out.value + '\n\n---\n\nPROMPT FINAL PARA GENERAR IMÁGENES\n\n' + out2.value], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'prompt_generador_integral.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function ids(){
+  return ['tipo','salida','formato','cantidad','duracion','tema','objetivo','audiencia','marca','cta','tono','estilo','colores','mensaje','datos','restricciones','tipoDiseno','elementos','tipoReel','escenario','avatar','broll','hooking','copy','hashtags','subtitulos','sonido','legal'];
+}
+
+function guardar(){
+  const data = {};
+  ids().forEach(id=>{
+    const el=document.getElementById(id);
+    data[id] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+  localStorage.setItem('generador_integral_prompts', JSON.stringify(data));
+  alert('Datos guardados en este navegador.');
+}
+
+function cargar(){
+  const raw = localStorage.getItem('generador_integral_prompts');
+  if(!raw){ alert('No hay datos guardados.'); return; }
+  const data = JSON.parse(raw);
+  Object.keys(data).forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) {
+      if(el.type === 'checkbox') el.checked = data[id];
+      else el.value = data[id];
+    }
+  });
+  toggleModules();
+  generar();
+}
+
+function limpiar(){
+  ['tema','audiencia','marca','cta','colores','mensaje','datos','restricciones','elementos','avatar','broll','output','output2'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cantidad').value='5';
+  document.getElementById('legal').checked=false;
+  toggleModules();
+}
+
+function ejemploCarrusel(){
+  document.getElementById('tipo').value='carrusel';
+  document.getElementById('salida').value='chatgpt';
+  document.getElementById('formato').value='1:1 cuadrado para Instagram/Facebook';
+  document.getElementById('cantidad').value='4';
+  document.getElementById('tema').value='Resultados visibles de la estrategia Quinta Esencia Evolution';
+  document.getElementById('objetivo').value='Generar mensajes por DM';
+  document.getElementById('audiencia').value='Personas interesadas en trading, oro y estrategias con disciplina';
+  document.getElementById('marca').value='Quinta Esencia Evolution';
+  document.getElementById('cta').value='Escríbeme DM si quieres saber cómo funciona';
+  document.getElementById('tono').value='Premium y elegante';
+  document.getElementById('estilo').value='Lujo oscuro con dorado, verde neón y datos visuales';
+  document.getElementById('colores').value='negro, dorado y verde neón';
+  document.getElementById('mensaje').value='No se trata de suerte, se trata de estructura, gestión y disciplina.';
+  document.getElementById('datos').value='Ganancia visible, operaciones cerradas, operaciones ganadoras, win rate, activo principal XAUUSD.';
+  document.getElementById('restricciones').value='No mostrar depósitos, retiros, balance, número de cuenta, broker ni datos privados. No prometer ganancias garantizadas. No hacer collage; cada slide debe ser imagen separada.';
+  document.getElementById('tipoDiseno').value='Prueba social / resultados';
+  document.getElementById('elementos').value='velas japonesas, oro, gráficas, flechas alcistas, paneles de datos, capturas recortadas';
+  document.getElementById('legal').checked=true;
+  toggleModules();
+  generar();
+}
+
+function ejemploReel(){
+  document.getElementById('tipo').value='reel';
+  document.getElementById('salida').value='chatgpt';
+  document.getElementById('formato').value='9:16 vertical para Reels, Stories, Shorts y TikTok';
+  document.getElementById('cantidad').value='5';
+  document.getElementById('duracion').value='30 segundos';
+  document.getElementById('tema').value='Quinta Esencia Evolution explicada en formato podcast';
+  document.getElementById('objetivo').value='Generar mensajes por DM';
+  document.getElementById('audiencia').value='Traders principiantes e intermedios';
+  document.getElementById('marca').value='Quinta Esencia Evolution';
+  document.getElementById('cta').value='Escríbeme DM si quieres saber cómo funciona';
+  document.getElementById('tono').value='Profesional y persuasivo';
+  document.getElementById('estilo').value='Lujo oscuro con dorado, verde neón y datos visuales';
+  document.getElementById('colores').value='negro, dorado y verde neón';
+  document.getElementById('mensaje').value='No se trata de operar por emoción, se trata de seguir una estructura.';
+  document.getElementById('datos').value='Estructura, gestión, disciplina, lectura del mercado y resultados visibles.';
+  document.getElementById('restricciones').value='No prometer ganancias garantizadas, no mostrar datos privados, no inventar resultados.';
+  document.getElementById('tipoReel').value='Podcast con avatar o presentador';
+  document.getElementById('escenario').value='Fondo de trading con pantallas y gráficas';
+  document.getElementById('avatar').value='Usar @me como avatar principal, hombre latino, camisa negra, sentado en estudio de podcast premium con micrófono, hablando con seguridad a cámara.';
+  document.getElementById('broll').value='Pantallas de trading, oro, velas japonesas, gráficas, capturas recortadas, logo de la estrategia.';
+  document.getElementById('legal').checked=true;
+  toggleModules();
+  generar();
+}
+
+function ejemploFlyer(){
+  document.getElementById('tipo').value='flyer';
+  document.getElementById('salida').value='chatgpt';
+  document.getElementById('formato').value='1:1 cuadrado para Instagram/Facebook';
+  document.getElementById('cantidad').value='1';
+  document.getElementById('tema').value='Promoción de fin de semana en restaurante';
+  document.getElementById('objetivo').value='Conseguir reservas o citas';
+  document.getElementById('audiencia').value='Familias y amigos que buscan dónde comer el fin de semana';
+  document.getElementById('marca').value='La Curva 2';
+  document.getElementById('cta').value='Reserva por WhatsApp hoy';
+  document.getElementById('tono').value='Divertido y creativo';
+  document.getElementById('estilo').value='Restaurante apetitoso, cálido y llamativo';
+  document.getElementById('colores').value='rojo, amarillo, negro y blanco';
+  document.getElementById('mensaje').value='Este fin de semana se come rico: mariscos, carnes y pozole.';
+  document.getElementById('datos').value='Mariscos, carnes, pozole, ambiente familiar, sábado especial.';
+  document.getElementById('restricciones').value='No usar platillos que no vende el restaurante. No saturar de texto.';
+  document.getElementById('tipoDiseno').value='Flyer promocional comercial';
+  document.getElementById('elementos').value='comida, mesa servida, logo, luces cálidas, íconos de WhatsApp';
+  document.getElementById('legal').checked=false;
+  toggleModules();
+  generar();
+}
+
+/* PWA simple en un solo archivo */
+(function(){
+  try{
+    const manifest={
+      name:"Generador Integral de Prompts Pro",
+      short_name:"Prompts Pro",
+      start_url:".",
+      display:"standalone",
+      background_color:"#07090f",
+      theme_color:"#07090f",
+      icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='110' fill='%2307090f'/%3E%3Ccircle cx='256' cy='256' r='160' fill='%23f6c75f'/%3E%3Ctext x='256' y='294' text-anchor='middle' font-size='106' font-family='Arial' font-weight='900' fill='%2307090f'%3EAI%3C/text%3E%3C/svg%3E",sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]
+    };
+    const link=document.createElement('link');
+    link.rel='manifest';
+    link.href=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/json'}));
+    document.head.appendChild(link);
+    if('serviceWorker' in navigator){
+      const sw="self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());self.addEventListener('fetch',e=>{});";
+      navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
