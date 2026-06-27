@@ -24,7 +24,17 @@ docker run --rm -p 3000:3000 generador-prompts
 ## Estructura
 
 ```
-index.html     # La PWA completa (autocontenida)
-nginx.conf     # Config de nginx (listen 3000, SPA fallback, gzip, /healthz)
-Dockerfile     # nginx:alpine sirviendo el estático
+index.html             # La app (UI + lógica)
+manifest.webmanifest   # Manifest PWA (instalable en móvil)
+sw.js                  # Service worker (offline / app shell)
+icons/                 # Iconos y favicons (192/512, maskable, apple-touch, favicon)
+nginx.conf             # Config de nginx (listen 3000, SPA fallback, gzip, /healthz)
+Dockerfile             # nginx:alpine sirviendo el estático
 ```
+
+## PWA / móvil
+
+- Instalable en Android e iOS ("Agregar a pantalla de inicio").
+- Iconos en todos los tamaños (incluye `maskable` y `apple-touch-icon` 180×180).
+- Funciona offline gracias al service worker (`sw.js`).
+- Para regenerar iconos: editar `icons/favicon.svg` y reexportar los PNG.

@@ -3,6 +3,9 @@ FROM nginx:1.27-alpine
 RUN rm -f /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/app.conf
 COPY index.html /usr/share/nginx/html/index.html
+COPY manifest.webmanifest /usr/share/nginx/html/manifest.webmanifest
+COPY sw.js /usr/share/nginx/html/sw.js
+COPY icons/ /usr/share/nginx/html/icons/
 
 EXPOSE 3000
 
