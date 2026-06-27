@@ -1,6 +1,6 @@
-# Generador Integral de Prompts Pro v4
+# ReelStudio
 
-PWA de una sola página para construir prompts estructurados (flujo ChatGPT + prompt final).
+PWA de una sola página especializada en generar **prompts para reels y carruseles** (flujo ChatGPT + prompt final).
 Es totalmente autocontenida: el `index.html` genera su propio manifest y service worker en línea, sin assets externos.
 
 Parte del ecosistema **VibeSystems / IAreal** (Docker + Coolify + Cloudflare Tunnel).
