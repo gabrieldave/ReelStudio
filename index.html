@@ -766,7 +766,7 @@ SIGUIENTE`;
 }
 
 function promptCarrusel(d){
-  
+  if(d.salida === 'directo'){
     return `Crea ${d.cantidad} prompts SEPARADOS para generar un carrusel en formato ${d.formato}.
 
 IMPORTANTE ABSOLUTO:
@@ -908,7 +908,7 @@ ENTREGA:
 }
 
 function promptFlyer(d){
-  
+  if(d.salida === 'directo'){
     return `Crea un prompt directo para generar un flyer/post único en formato ${d.formato}.
 
 Tema: ${d.tema}
@@ -1000,7 +1000,7 @@ ENTREGA:
 function promptReel(d){
   const tiempos = tiempoEscenas(d.duracion, d.cantidad);
 
-  
+  if(d.salida === 'directo'){
     return `Crea ${d.cantidad} prompts directos para Google Flow/Veo para un Reel de ${d.duracion} en formato ${d.formato}.
 
 Tema: ${d.tema}
